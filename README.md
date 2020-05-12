@@ -2,12 +2,17 @@
 
 Simple scripts to control your music from the command line
 
+For this can work on most MacOSX devices. Other platforms will
+require that use the spotify API. Which will be updated soon.
+
 ## Instructions
 
-- Since this is a non-commercial app, I can't help but ask y'all to register a
-  client app on Spotify Dev [Link](https://developer.spotify.com/).
+ - Have the `Spotify` app installed on your machine.
 
-- Set the `CLIENT_ID` and `CLIENT_SECRET` that you obtain as `env` variables.
+ - Have [bb](https://github.com/borkdude/babashka) installed on your machine.
 
-- Make sure you have [bb](https://github.com/borkdude/babashka) installed.
+## Reference(s)
+
+ - [shpotify](https://github.com/hnarayanan/shpotify)
+
 
