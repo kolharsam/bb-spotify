@@ -118,7 +118,7 @@
     (println show-download-link)
     (let [par-contains (partial contains? options)]
       (cond
-        (par-contains :sp-help) (println usage-help)
+        (par-contains :music-help) (println usage-help)
         (par-contains :open) (open-app)
         (par-contains :close) (close-app)
         (par-contains :play) (play)
