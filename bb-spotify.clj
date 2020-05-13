@@ -121,6 +121,12 @@
         player-state-str (nth (str/split player-state #"\n") 0)]
     (println "You're player is:" player-state-str)))
 
+(defn share-link []
+  (let [spotify-uri (exec-script "Getting link..." "to spotify url of current track")
+        uri-split (str/split spotify-uri #"spotify:track:")
+        url-gen (str/join "https://open.spotify.com/track/" uri-split)]
+    (print url-gen)))
+
 (defn main [options]
   (if (not is-spotify-installed?)
     (println show-download-link)
@@ -137,6 +143,7 @@
         (par-contains :repeat) (repeat-track)
         (par-contains :shuffle) (shuffle-playlist)
         (par-contains :status) (player-status)
+        (par-contains :share) (share-link)
         ;; insert more cases here
         :else
         (print usage-help)))))
