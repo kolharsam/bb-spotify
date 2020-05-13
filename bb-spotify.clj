@@ -20,6 +20,7 @@
    ["-t" "--status" "status"]
    ["-o" "--open" "open"]
    ["-x" "--close" "close"]
+   ["-h" "--share" "share"]
    ["-v" "--sp-help" "bb-spotify-help"]])
 
 (def usage-help
@@ -37,7 +38,8 @@
         "  status  (-t, --status)           - current status of spotify player  "
         "  bb-spotify-help (-v, --sp-help)  - displays this information  "
         "  open    (-o, --open)             - opens the app "
-        "  close  (-x, --close)             - closes the app"
+        "  close   (-x, --close)            - closes the app"
+        "  share   (-h, --share)            - copies link to current song to clipboard   "
         ""
         "  More updates will coming soon, but for now you    "
         "  can control the Spotify App from the command line."
@@ -46,9 +48,13 @@
 
 ;; TODO: check if we can use the search api without any auth token
 
-;; Shell execution returns : {:exit 0, :out , :err }
+;; Shell execution returns : {:exit 0, :out "", :err ""}
 
-;; TODO: current, repeat, shuffle, vol-up, vol-down, status
+;; FIX: current
+
+;; TODO: vol-up, vol-down
+
+;; To try: (shell/sh "osascript" "-e" "tell application \"Spotify\" to shuffling")
 
 (def get-cl-options
   (:options (tools.cli/parse-opts *command-line-args* cl-options)))
@@ -67,9 +73,12 @@
   (println doc)
   (let [script-future (future (shell/sh "osascript" "-e" (str "tell application \"Spotify\" " body)))
         future-status @script-future
-        err-status (:err future-status)]
-    (when (not= "" err-status)
-      (println "There was an error opening the app" err-status))))
+        err-status (:err future-status)
+        out-status (:out future-status)]
+    (if (not= "" err-status)
+      (println "There was an error opening the app" err-status)
+      (when (not= "" out-status)
+        out-status))))
 
 (defn open-app []
   (exec-script "Opening app..." "to activate"))
@@ -89,6 +98,29 @@
 (defn prev-track []
   (exec-script "Playing previous track!" "\nset player position to 0\n previous track\n end tell"))
 
+;; This doesn't work
+;; (defn current-track-info []
+  ;; (println "Track Information: ")
+  ;; (let [artist-info (exec-script "" "to artist of current track")
+        ;; album-info (exec-script "" "to album of current track")
+        ;; track-info (exec-script "" "to name of current track")]
+;; (println artist-info album-info track-info)))
+
+(defn repeat-track []
+  (exec-script "Replaying the current track!" "set player position to 0"))
+
+(defn shuffle-playlist []
+  (let [current-shuffle-state (exec-script "" "to shuffling")]
+    (if (= "true\n" current-shuffle-state)
+      (println "Turning off shuffle!")
+      (println "Turning on shuffle!"))
+    (exec-script "" "to set shuffling to not shuffling")))
+
+(defn player-status []
+  (let [player-state (exec-script "" "to player state")
+        player-state-str (nth (str/split player-state #"\n") 0)]
+    (println "You're player is:" player-state-str)))
+
 (defn main [options]
   (if (not is-spotify-installed?)
     (println show-download-link)
@@ -101,6 +133,10 @@
         (par-contains :pause) (pause)
         (par-contains :next) (next-track)
         (par-contains :prev) (prev-track)
+        ;; (par-contains :current) (current-track-info)
+        (par-contains :repeat) (repeat-track)
+        (par-contains :shuffle) (shuffle-playlist)
+        (par-contains :status) (player-status)
         ;; insert more cases here
         :else
         (print usage-help)))))
