@@ -3,7 +3,7 @@
 Simple scripts to control your music from the command line
 
 For this can work on most MacOSX devices. Other platforms will
-require that use the spotify API. Which will be updated soon.
+require the spotify API. Which will be updated soon.
 
 ## Instructions
 
