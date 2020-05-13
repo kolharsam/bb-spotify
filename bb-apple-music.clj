@@ -5,8 +5,6 @@
             [clojure.java.shell :as shell]
             [clojure.tools.cli :as tools.cli]))
 
-;; TODO: Make cl-options more friendlier
-
 (def cl-options
   [["-p" "--play"  "play"]
    ["-s" "--pause" "pause"]    ;; s for stop
@@ -32,8 +30,8 @@
         "  prev    (-l, --last)             - goes to previous song in the playlist  "
         "  repeat  (-r, --repeat)           - plays current track on repeat "
         "  shuffle (-z, --shuffle)          - used to toggle shuffle on the playlist  "
-        "  vol-up  (-u, --volume-up)        - increses volume  "
-        "  vol-dn  (-d, --volume-down)      - decreses volume  "
+        "  vol-up  (-u, --volume-up)        - increses volume by 10 units "
+        "  vol-dn  (-d, --volume-down)      - decreses volume by 10 units "
         "  status  (-t, --status)           - current status of spotify player  "
         "  bb-music-help (-v, --music-help) - displays this information  "
         "  open    (-o, --open)             - opens the app "
@@ -43,8 +41,6 @@
         "  can control the Music App from the command line."
         ""]
        (str/join \newline)))
-
-;; TODO: vol-up, vol-down
 
 ;; To try: (shell/sh "osascript" "-e" "tell application \"Spotify\" to shuffling")
 
@@ -110,25 +106,55 @@
 
 (defn player-status []
   (let [player-state (exec-script "" "to player state")
-        player-state-str (nth (str/split player-state #"\n") 0)]
+        player-state-str (first (str/split player-state #"\n"))]
     (println "Your player is:" player-state-str)))
+
+(defn volume-up []
+  (let [current-volume (exec-script "Fetching current volume..." "to sound volume")
+        get-number (Integer/parseInt (first (str/split current-volume #"\n")))
+        new-volume (if (zero? get-number)
+                     (+ 10 get-number)
+                     (+ 9 (inc get-number)))
+        should-inc? (>= 100 new-volume)
+        final-word (if should-inc?
+                     (exec-script (str "Increasing volume to " new-volume "...")
+                                  (str "to set sound volume to " new-volume))
+                     "Can't increase the volume further")]
+    (when (not (nil? final-word))
+      (println final-word))))
+
+(defn volume-down []
+  (let [current-volume (exec-script "Fetching current volume..." "to sound volume")
+        get-number (Integer/parseInt (first (str/split current-volume #"\n")))
+        new-volume (if (= 100 get-number)
+                     (- get-number 10)
+                     (- (inc get-number) 11))
+        should-dec? (< 0 new-volume)
+        final-word (if should-dec?
+                     (exec-script (str "Decreasing volume to " new-volume "...")
+                                  (str "to set sound volume to " new-volume))
+                     "Can't decrease the volume further")]
+    (when (not (nil? final-word))
+      (println final-word))))
 
 (defn main [options]
   (if (not is-music-installed?)
     (println show-download-link)
     (let [par-contains (partial contains? options)]
       (cond
-        (par-contains :music-help) (println usage-help)
-        (par-contains :open) (open-app)
-        (par-contains :close) (close-app)
-        (par-contains :play) (play)
-        (par-contains :pause) (pause)
-        (par-contains :next) (next-track)
-        (par-contains :prev) (prev-track)
-        (par-contains :current) (current-track-info)
-        (par-contains :repeat) (repeat-track)
-        (par-contains :shuffle) (shuffle-playlist)
-        (par-contains :status) (player-status)
+        (par-contains :music-help)   (println usage-help)
+        (par-contains :open)         (open-app)
+        (par-contains :close)        (close-app)
+        (par-contains :play)         (play)
+        (par-contains :pause)        (pause)
+        (par-contains :next)         (next-track)
+        (par-contains :prev)         (prev-track)
+        (par-contains :current)      (current-track-info)
+        (par-contains :repeat)       (repeat-track)
+        (par-contains :shuffle)      (shuffle-playlist)
+        (par-contains :status)       (player-status)
+        (par-contains :volume-up)    (volume-up)
+        (par-contains :volume-down)  (volume-down)
         ;; insert more cases here
         :else
         (print usage-help)))))
