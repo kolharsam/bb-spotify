@@ -112,9 +112,7 @@
 (defn volume-up []
   (let [current-volume (exec-script "Fetching current volume..." "to sound volume")
         get-number (Integer/parseInt (first (str/split current-volume #"\n")))
-        new-volume (if (zero? get-number)
-                     (+ 10 get-number)
-                     (+ 9 (inc get-number)))
+        new-volume (+ get-number 10)
         should-inc? (>= 100 new-volume)
         final-word (if should-inc?
                      (exec-script (str "Increasing volume to " new-volume "...")
@@ -126,9 +124,7 @@
 (defn volume-down []
   (let [current-volume (exec-script "Fetching current volume..." "to sound volume")
         get-number (Integer/parseInt (first (str/split current-volume #"\n")))
-        new-volume (if (= 100 get-number)
-                     (- get-number 10)
-                     (- (inc get-number) 11))
+        new-volume (- get-number 10)
         should-dec? (< 0 new-volume)
         final-word (if should-dec?
                      (exec-script (str "Decreasing volume to " new-volume "...")
