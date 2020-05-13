@@ -111,7 +111,7 @@
 (defn player-status []
   (let [player-state (exec-script "" "to player state")
         player-state-str (nth (str/split player-state #"\n") 0)]
-    (println "You're player is:" player-state-str)))
+    (println "Your player is:" player-state-str)))
 
 (defn main [options]
   (if (not is-music-installed?)
