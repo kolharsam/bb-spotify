@@ -86,14 +86,12 @@
 (defn prev-track []
   (exec-script "Playing previous track!" "\nset player position to 0\n previous track\n end tell"))
 
-;; This doesn't work for obtaining current song info
-
-;; (defn current-track-info []
-;; (println "Track Information: ")
-;; (let [artist-info (exec-script "" "to artist of current track")
-;; album-info (exec-script "" "to album of current track")
-;; track-info (exec-script "" "to name of current track")]
-;; (println artist-info album-info track-info)))
+(defn current-track-info []
+  (println "Track Information: ")
+  (let [artist-info (exec-script "" "to artist of current track")
+        album-info (exec-script "" "to album of current track")
+        track-info (exec-script "" "to name of current track")]
+    (println artist-info album-info track-info)))
 
 (defn repeat-track []
   (exec-script "Replaying the current track!" "set player position to 0"))
@@ -119,14 +117,7 @@
 (defn volume-up []
   (let [current-volume (exec-script "Fetching current volume..." "to sound volume")
         get-number (Integer/parseInt (first (str/split current-volume #"\n")))
-        new-volume (if (zero? get-number)
-                     (+ 10 get-number)
-                     (+ 9 (inc get-number)))
-        ;; something was really fishy with the way the current volume is fetched
-        ;; that is why all of these work-arounds - but still is buggy in certain
-        ;; cases - like for example when the volume is at 90 - it is read as 89
-        ;; This has something to do with the Spotify App. The similar commands
-        ;; work well foe Apple Music in the other script
+        new-volume (+ get-number 10)
         should-inc? (>= 100 new-volume)
         final-word (if should-inc?
                      (exec-script (str "Increasing volume to " new-volume "...")
@@ -138,9 +129,7 @@
 (defn volume-down []
   (let [current-volume (exec-script "Fetching current volume..." "to sound volume")
         get-number (Integer/parseInt (first (str/split current-volume #"\n")))
-        new-volume (if (= 100 get-number)
-                     (- get-number 10)
-                     (- (inc get-number) 11))
+        new-volume (- get-number 10)
         should-dec? (< 0 new-volume)
         final-word (if should-dec?
                      (exec-script (str "Decreasing volume to " new-volume "...")
@@ -161,7 +150,7 @@
         (par-contains :pause)       (pause)
         (par-contains :next)        (next-track)
         (par-contains :prev)        (prev-track)
-        ;; (par-contains :current)  (current-track-info)
+        (par-contains :current)     (current-track-info)
         (par-contains :repeat)      (repeat-track)
         (par-contains :shuffle)     (shuffle-playlist)
         (par-contains :status)      (player-status)
@@ -181,8 +170,6 @@
 ;; Make cl-options more friendlier
 
 ;; Shell execution returns : {:exit 0, :out "", :err ""}
-
-;; FIX: current, volume-up & volume-down fetch correct number (always 1 more/less than the actual value)
 
 ;; To try:
 ;; (shell/sh "osascript" "-e" "tell application \"Spotify\" to set sound volume to 10")
