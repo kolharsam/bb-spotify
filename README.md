@@ -3,7 +3,7 @@
 Simple scripts to control your music from the command line
 
 This can work on most MacOSX devices. Other platforms will
-require the spotify API. Which will be updated soon.
+require the spotify API. Which will be updated at some point in time. :P
 
 These scripts can work for Apple Music too! Use `bb-apple-music.clj` instead.
 
@@ -21,7 +21,7 @@ The following options are currently available, if you have the Spotify app insta
 
   play    (-p, --play)             - play current track
   pause   (-s, --pause)            - pause current track
-  * current (-c, --current)          - shows some information about current song
+  current (-c, --current)          - shows some information about current song
   next    (-n, --next)             - goes to next song in the playlist
   prev    (-l, --last)             - goes to previous song in the playlist
   repeat  (-r, --repeat)           - plays current track on repeat
@@ -34,8 +34,6 @@ The following options are currently available, if you have the Spotify app insta
   close  (-x, --close)             - closes the app
 
 ```
-
-*current doesn't work as intended for spotify. Check this [issue](https://github.com/kolharsam/bb-spotify/issues/1)
 
 ## Reference(s)
 
